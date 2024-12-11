@@ -22,31 +22,27 @@ mongoose
 const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   key: { type: String, required: true },
-  k: { type: String, required: false }
 });
 
 const User = mongoose.model("User", UserSchema);
 
 // Login Endpoint
 app.post("/api/extension/login", async (req, res) => {
-  const { email, key, k } = req.body;
+  const { email, key } = req.body;
 
   try {
     const user = await User.findOne({ email, key });
     if (user) {
-      // หาก token ไม่ตรง ให้ทำการอัปเดต
-      if (user.k !== k) {
-        user.k = k; // อัปเดต token ใหม่
-        await user.save();
-      }
+      // สร้าง token สำหรับ `k`
+      const k = generateToken(); // ใช้ฟังก์ชัน generateToken() เพื่อสร้าง token
 
       return res.json({
         success: true,
         message: "Login successful",
         subscription: {
-          email: user.email,
-          key: user.key,
-          k: user.k, // ส่ง token ที่อัปเดต
+          email: user.email, // เก็บ email ของ user
+          key: user.key,     // เก็บ key ของ user
+          k: k,              // ส่ง token ที่สร้างไว้
         },
       });
     } else {
@@ -56,7 +52,6 @@ app.post("/api/extension/login", async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 });
-
 
 // Signup Endpoint
 app.post("/api/extension/signup", async (req, res) => {
@@ -73,7 +68,7 @@ app.post("/api/extension/signup", async (req, res) => {
     const k = generateToken();
 
     // Create a new user
-    const newUser = new User({ email, key, k });
+    const newUser = new User({ email, key });
     await newUser.save();
 
     return res.json({
@@ -82,7 +77,7 @@ app.post("/api/extension/signup", async (req, res) => {
       subscription: {
         email: newUser.email,
         key: newUser.key,
-        k: newUser.k, // เพิ่ม token ที่สร้างไว้
+        k: k, // เพิ่ม token ที่สร้างไว้
       },
     });
   } catch (error) {
@@ -97,3 +92,5 @@ const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
