@@ -15,7 +15,7 @@ function generateToken() {
 
 const mongoose = require("mongoose");
 mongoose
-  .connect("mongodb+srv://petchza10222:1652038ZXCV@peth.3o5dx.mongodb.net//Booker")
+  .connect("mongodb+srv://petchza10222:1652038ZXCV@peth.3o5dx.mongodb.net/Booker")
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
