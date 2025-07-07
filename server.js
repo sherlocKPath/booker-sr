@@ -4,7 +4,27 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+
+const ALLOWED_ORIGINS = [
+  "chrome-extension://onnbpbefmfdcjadmoppgjdimhbaliohc", // Extension 1
+  "chrome-extension://kkloimbciajfffkblhnhcpcmnjbchlpc"  // Extension 2
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // อนุญาตเฉพาะ origin ที่อยู่ในรายการ หรือไม่มี origin (เช่น curl หรือ postman)
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+
+app.options("*", cors()); // รองรับ preflight
 
 const crypto = require("crypto");
 
