@@ -6,13 +6,12 @@ const app = express();
 app.use(express.json());
 
 const ALLOWED_ORIGINS = [
-  "chrome-extension://onnbpbefmfdcjadmoppgjdimhbaliohc", // Extension 1
-  "chrome-extension://kkloimbciajfffkblhnhcpcmnjbchlpc"  // Extension 2
+  "chrome-extension://onnbpbefmfdcjadmoppgjdimhbaliohc",
+  "chrome-extension://kkloimbciajfffkblhnhcpcmnjbchlpc"
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    // อนุญาตเฉพาะ origin ที่อยู่ในรายการ หรือไม่มี origin (เช่น curl หรือ postman)
     if (!origin || ALLOWED_ORIGINS.includes(origin)) {
       callback(null, true);
     } else {
@@ -22,9 +21,10 @@ app.use(cors({
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
-}));
+};
 
-app.options("*", cors()); // รองรับ preflight
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // รองรับ preflight อย่างถูกต้อง
 
 const crypto = require("crypto");
 
